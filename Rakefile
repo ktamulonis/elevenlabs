@@ -7,6 +7,6 @@ end
 
 desc "Install the gem"
 task :install => :build do
-  sh "gem install ./elevenlabs-0.0.1.gem"
+  sh "gem install ./elevenlabs-0.0.3.gem"
 end
 

@@ -50,7 +50,7 @@ All requests are handled via [Faraday](https://github.com/lostisland/faraday).
 Add the gem to your `Gemfile`:
 
 ```ruby
-gem "elevenlabs", "~> 0.0.1"
+gem "elevenlabs"
 ```
 Then run:
 ```ruby
@@ -214,7 +214,7 @@ gem build elevenlabs.gemspec
 ```
 Install the gem locally
 ```bash
-gem install ./elevenlabs-0.0.1.gem
+gem install ./elevenlabs-0.0.3.gem
 ```
 Contributing
 Contributions are welcome! Please follow these steps:
