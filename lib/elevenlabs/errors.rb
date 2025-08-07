@@ -6,6 +6,6 @@ module Elevenlabs
   class AuthenticationError < Error; end
   class NotFoundError < Error; end
   class BadRequestError < Error; end
-  # ... add more as needed ...
+  class UnprocessableEntityError < Error; end
 end
 
