@@ -264,23 +264,42 @@ IO.popen("play -t mp3 -", "wb") do |audio_pipe| # Notice "wb" (write binary)
 end
 ```
 
-9. **Design a Voice**
+9. **Create a Voice from a Design**
 
-Generate voice previews based on a text description:
+Once you’ve generated a voice design using client.design_voice, you can turn it into a permanent voice in your account by passing its generated_voice_id to client.create_from_generated_voice.
 
+# Step 1: Design a voice (returns previews + generated_voice_id)
 ```ruby
-response = client.design_voice(
-  "A deep, resonant male voice with a British accent, suitable for storytelling",
-  output_format: "mp3_44100_192",
+design_response = client.design_voice(
+  "A warm, friendly female voice with a slight Australian accent",
   model_id: "eleven_multilingual_ttv_v2",
-  text: "In a land far away, where the mountains meet the sky, a great adventure began. Brave heroes embarked on a quest to find the lost artifact, facing challenges and forging bonds that would last a lifetime. Their journey took them through enchanted forests, across raging rivers, and into the heart of ancient ruins.",
+  text: "Welcome to our podcast, where every story is an adventure, taking you on a journey through fascinating worlds, inspiring voices, and unforgettable moments.",
   auto_generate_text: false
 )
-# Save the first preview to an MP3 file
-require "base64"
-audio_data = Base64.decode64(response["previews"][0]["audio_base_64"])
-File.open("voice_preview.mp3", "wb") { |f| f.write(audio_data) }
+
+generated_voice_id = design_response["previews"].first["generated_voice_id"] #three previews are given, but for this example we will use the first to create a voice here
+
+# Step 2: Create the permanent voice
+create_response = client.create_from_generated_voice(
+  "Friendly Aussie",
+  "A warm, friendly Australian-accented voice for podcasts",
+   generated_voice_id,
+)
+
+voice_id = create_response["voice_id"] # This is the ID you can use for TTS
+
+# Step 3: Use the new voice for TTS
+audio_data = client.text_to_speech(voice_id, "This is my new permanent designed voice.")
+File.open("friendly_aussie.mp3", "wb") { |f| f.write(audio_data) }
 ```
+Important notes:
+
+Always store the returned voice_id from create_voice_from_design. This is the permanent identifier for TTS.
+
+Designed voices cannot be used for TTS until they are created in your account.
+
+If the voice is not immediately available for TTS, wait a few seconds or check its status via client.get_voice(voice_id) until it’s "active".
+
 
 ---
 

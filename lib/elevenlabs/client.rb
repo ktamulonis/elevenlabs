@@ -143,6 +143,39 @@ module Elevenlabs
     end
 
     #####################################################
+    #                  Create a Voice                   #
+    #      (POST /v1/text-to-voice/create)              #
+    #####################################################
+    # Creates a voice from the designed voice generated_voice_id
+    # Documentation: https://elevenlabs.io/docs/api-reference/text-to-voice
+    #
+    # @param [String] voice_name - Name of the voice
+    # @param [String] voice_description - Description of the voice (20-1000 characters)
+    # @param [String] generated_voice_id - The generated voice ID from design_voice
+    # @param [Hash] labels - Optional metadata for the voice
+    # @param [Array<String>] played_not_selected_voice_ids - Optional list of voice IDs played but not selected
+    #
+    # @return [Hash] JSON response containing voice_id and other voice details
+    def create_from_generated_voice(voice_name, voice_description, generated_voice_id, labels: nil, played_not_selected_voice_ids: nil)
+      endpoint = "/v1/text-to-voice"
+      request_body = {
+        voice_name: voice_name,
+        voice_description: voice_description,
+        generated_voice_id: generated_voice_id,
+        labels: labels,
+        played_not_selected_voice_ids: played_not_selected_voice_ids
+      }.compact
+
+      response = @connection.post(endpoint) do |req|
+        req.headers = default_headers
+        req.body = request_body.to_json
+      end
+      JSON.parse(response.body)
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
+
+    #####################################################
     #                     GET Voices                    #
     #                  (GET /v1/voices)                 #
     #####################################################
