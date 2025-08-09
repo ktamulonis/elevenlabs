@@ -1,0 +1,16 @@
+Gemfile.lock
+*.gem
+
+/tmp/
+/pkg/
+/log/
+
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+/coverage/
+/spec/examples.txt
+/doc/

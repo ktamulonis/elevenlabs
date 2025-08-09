@@ -88,6 +88,92 @@ module Elevenlabs
       handle_error(e)
     end
 
+    #####################################################
+    #                  Design a Voice                   #
+    #      (POST /v1/text-to-voice/design)              #
+    #####################################################
+
+    # Designs a voice based on a description
+    # Documentation: https://elevenlabs.io/docs/api-reference/text-to-voice/design
+    #
+    # @param [String] voice_description - Description of the voice (20-1000 characters)
+    # @param [Hash] options - Optional parameters
+    #   :output_format              => String   (e.g., "mp3_44100_192", default: "mp3_44100_192")
+    #   :model_id                  => String   (e.g., "eleven_multilingual_ttv_v2", "eleven_ttv_v3")
+    #   :text                      => String   (100-1000 characters, optional)
+    #   :auto_generate_text        => Boolean  (default: false)
+    #   :loudness                  => Float    (-1 to 1, default: 0.5)
+    #   :seed                      => Integer  (0 to 2147483647, optional)
+    #   :guidance_scale            => Float    (0 to 100, default: 5)
+    #   :stream_previews           => Boolean  (default: false)
+    #   :remixing_session_id       => String   (optional)
+    #   :remixing_session_iteration_id => String (optional)
+    #   :quality                   => Float    (-1 to 1, optional)
+    #   :reference_audio_base64    => String   (base64 encoded audio, optional, requires eleven_ttv_v3)
+    #   :prompt_strength           => Float    (0 to 1, optional, requires eleven_ttv_v3)
+    #
+    # @return [Hash] JSON response containing previews and text
+    def design_voice(voice_description, options = {})
+      endpoint = "/v1/text-to-voice/design"
+      request_body = { voice_description: voice_description }
+
+      # Add optional parameters if provided
+      request_body[:output_format] = options[:output_format] if options[:output_format]
+      request_body[:model_id] = options[:model_id] if options[:model_id]
+      request_body[:text] = options[:text] if options[:text]
+      request_body[:auto_generate_text] = options[:auto_generate_text] unless options[:auto_generate_text].nil?
+      request_body[:loudness] = options[:loudness] if options[:loudness]
+      request_body[:seed] = options[:seed] if options[:seed]
+      request_body[:guidance_scale] = options[:guidance_scale] if options[:guidance_scale]
+      request_body[:stream_previews] = options[:stream_previews] unless options[:stream_previews].nil?
+      request_body[:remixing_session_id] = options[:remixing_session_id] if options[:remixing_session_id]
+      request_body[:remixing_session_iteration_id] = options[:remixing_session_iteration_id] if options[:remixing_session_iteration_id]
+      request_body[:quality] = options[:quality] if options[:quality]
+      request_body[:reference_audio_base64] = options[:reference_audio_base64] if options[:reference_audio_base64]
+      request_body[:prompt_strength] = options[:prompt_strength] if options[:prompt_strength]
+
+      response = @connection.post(endpoint) do |req|
+        req.headers = default_headers
+        req.body = request_body.to_json
+      end
+
+      JSON.parse(response.body)
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
+
+    #####################################################
+    #                  Create a Voice                   #
+    #      (POST /v1/text-to-voice/create)              #
+    #####################################################
+    # Creates a voice from the designed voice generated_voice_id
+    # Documentation: https://elevenlabs.io/docs/api-reference/text-to-voice
+    #
+    # @param [String] voice_name - Name of the voice
+    # @param [String] voice_description - Description of the voice (20-1000 characters)
+    # @param [String] generated_voice_id - The generated voice ID from design_voice
+    # @param [Hash] labels - Optional metadata for the voice
+    # @param [Array<String>] played_not_selected_voice_ids - Optional list of voice IDs played but not selected
+    #
+    # @return [Hash] JSON response containing voice_id and other voice details
+    def create_from_generated_voice(voice_name, voice_description, generated_voice_id, labels: nil, played_not_selected_voice_ids: nil)
+      endpoint = "/v1/text-to-voice"
+      request_body = {
+        voice_name: voice_name,
+        voice_description: voice_description,
+        generated_voice_id: generated_voice_id,
+        labels: labels,
+        played_not_selected_voice_ids: played_not_selected_voice_ids
+      }.compact
+
+      response = @connection.post(endpoint) do |req|
+        req.headers = default_headers
+        req.body = request_body.to_json
+      end
+      JSON.parse(response.body)
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
 
     #####################################################
     #                     GET Voices                    #
