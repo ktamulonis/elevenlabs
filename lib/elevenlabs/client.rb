@@ -195,6 +195,25 @@ module Elevenlabs
     end
 
     #####################################################
+    #                     GET models #
+    #                  (GET /v1/models)                 #
+    #####################################################
+
+    # Gets a list of available models
+    # Documentation: https://elevenlabs.io/docs/api-reference/models/list
+    #
+    # @return [Hash] The JSON response containing an array of models
+    def list_models
+      endpoint = "/v1/models"
+      response = @connection.get(endpoint) do |req|
+        req.headers = default_headers
+      end
+      JSON.parse(response.body)
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
+
+    #####################################################
     #                 GET a Single Voice                #
     #               (GET /v1/voices/{voice_id})         #
     #####################################################

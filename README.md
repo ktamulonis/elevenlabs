@@ -196,16 +196,20 @@ end
 ```ruby
 client.list_voices
 # => { "voices" => [...] }
-```
 
-2. **Get Voice Details**
+2. List Models
+
+client.list_models
+# => [...]
+
+3. **Get Voice Details**
 
 ```ruby
 client.get_voice("VOICE_ID")
 # => { "voice_id" => "...", "name" => "...", ... }
 ```
 
-3. **Create a Custom Voice**
+4. **Create a Custom Voice**
 
 ```ruby
 sample_files = [File.open("sample1.mp3", "rb")]
@@ -213,7 +217,7 @@ client.create_voice("Custom Voice", sample_files, description: "My custom AI voi
 # => JSON response with new voice details
 ```
 
-4. **Check if a Voice is Banned**
+5. **Check if a Voice is Banned**
 
 ```ruby
 sample_files = [File.open("trump.mp3", "rb")]
@@ -224,28 +228,28 @@ client.banned?(trump)
 # => true
 ```
 
-5. **Edit a Voice**
+6. **Edit a Voice**
 
 ```ruby
 client.edit_voice("VOICE_ID", name: "Updated Voice Name")
 # => JSON response with updated details
 ```
 
-6. **Delete a Voice**
+7. **Delete a Voice**
 
 ```ruby
 client.delete_voice("VOICE_ID")
 # => JSON response acknowledging deletion
 ```
 
-7. **Convert Text to Speech**
+8. **Convert Text to Speech**
 
 ```ruby
 audio_data = client.text_to_speech("VOICE_ID", "Hello world!")
 File.open("output.mp3", "wb") { |f| f.write(audio_data) }
 ```
 
-8. **Stream Text to Speech**
+9. **Stream Text to Speech**
 
 Stream from terminal:
 
@@ -264,7 +268,7 @@ IO.popen("play -t mp3 -", "wb") do |audio_pipe| # Notice "wb" (write binary)
 end
 ```
 
-9. **Create a Voice from a Design**
+10. **Create a Voice from a Design**
 
 Once you’ve generated a voice design using client.design_voice, you can turn it into a permanent voice in your account by passing its generated_voice_id to client.create_from_generated_voice.
 
