@@ -300,6 +300,13 @@ Designed voices cannot be used for TTS until they are created in your account.
 
 If the voice is not immediately available for TTS, wait a few seconds or check its status via client.get_voice(voice_id) until it’s "active".
 
+10. Create a multi-speaker dialogue
+```ruby
+inputs = [{text: "It smells like updog in here", voice_id: "TX3LPaxmHKxFdv7VOQHJ"}, {text: "What's updog?", voice_id: "RILOU7YmBhvwJGDGjNmP"}, {text: "Not much, you?", voice_id: "TX3LPaxmHKxFdv7VOQHJ"}]
+
+audio_data = client.text_to_dialogue(inputs)
+File.open("what's updog.mp3", "wb") { |f| f.write(audio_data) }
+```
 
 ---
 
