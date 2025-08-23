@@ -368,7 +368,7 @@ gem build elevenlabs.gemspec
 Install the gem locally:
 
 ```bash
-gem install ./elevenlabs-0.0.5.gem
+gem install ./elevenlabs-0.0.6.gem
 ```
 
 ---
