@@ -89,6 +89,47 @@ module Elevenlabs
     end
 
     #####################################################
+    #              Text-to-Dialogue                     #
+    #    (POST /v1/text-to-dialogue)                    #
+    #####################################################
+
+    # Converts a list of text and voice ID pairs into speech (dialogue) and returns audio.
+    # Documentation: https://elevenlabs.io/docs/api-reference/text-to-dialogue/convert
+    #
+    # @param [Array[Objects]] inputs - A list of dialogue inputs, each containing text and a voice ID which will be converted into speech
+    #   :text => String
+    #   :voice_id => String
+    # @param [String] model_id - optional Identifier of the model to be used
+    # @param [Hash] settings - optinal Settings controlling the dialogue generation
+    #   :stability => double - 0.0 = Creative, 0.5 = Natural, 1.0 = Robust
+    #   :use_speaker_boost => boolean
+    # @param [Integer] seed - optional Best effort to sample deterministically.
+    #
+    # @return [String] The binary audio data (usually an MP3).
+    def text_to_dialogue(inputs, model_id = nil, settings = {}, seed = nil)
+      endpoint = "/v1/text-to-dialogue"
+      request_body = {}.tap do |r|
+        r[:inputs] = inputs
+        r[:model_id] = model_id if model_id
+        r[:settings] = settings unless settings.empty?
+        r[:seed] = seed if seed
+      end
+
+      headers = default_headers
+      headers["Accept"] = "audio/mpeg"
+
+      response = @connection.post(endpoint) do |req|
+        req.headers = headers
+        req.body = request_body.to_json
+      end
+
+      # Returns raw binary data (often MP3)
+      response.body
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
+
+    #####################################################
     #                  Design a Voice                   #
     #      (POST /v1/text-to-voice/design)              #
     #####################################################
