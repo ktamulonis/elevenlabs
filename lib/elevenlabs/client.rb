@@ -405,6 +405,110 @@ module Elevenlabs
       voice_id.in?(active_voices)
     end
 
+    #####################################################
+    #                     Music API                     #
+    #####################################################
+
+    # 1. Compose music (basic)
+    # POST /v1/music
+    def compose_music(options = {})
+      endpoint = "/v1/music"
+      request_body = {
+        prompt: options[:prompt],
+        composition_plan: options[:composition_plan],
+        music_length_ms: options[:music_length_ms],
+        model_id: options[:model_id] || "music_v1"
+      }.compact
+
+      headers = default_headers.merge("Accept" => "audio/mpeg")
+      query = {}
+      query[:output_format] = options[:output_format] if options[:output_format]
+
+      response = @connection.post("#{endpoint}?#{URI.encode_www_form(query)}") do |req|
+        req.headers = headers
+        req.body = request_body.to_json
+      end
+
+      response.body # raw binary audio
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
+
+    # 2. Stream music
+    # POST /v1/music/stream
+    def compose_music_stream(options = {}, &block)
+      endpoint = "/v1/music/stream"
+      request_body = {
+        prompt: options[:prompt],
+        composition_plan: options[:composition_plan],
+        music_length_ms: options[:music_length_ms],
+        model_id: options[:model_id] || "music_v1"
+      }.compact
+
+      headers = default_headers.merge("Accept" => "audio/mpeg")
+      query = {}
+      query[:output_format] = options[:output_format] if options[:output_format]
+
+      @connection.post("#{endpoint}?#{URI.encode_www_form(query)}") do |req|
+        req.options.on_data = Proc.new do |chunk, _|
+          block.call(chunk) if block
+        end
+        req.headers = headers
+        req.body = request_body.to_json
+      end
+
+      nil # audio streamed via block
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
+
+    # 3. Compose detailed music (metadata + audio)
+    # POST /v1/music/detailed
+    def compose_music_detailed(options = {})
+      endpoint = "/v1/music/detailed"
+      request_body = {
+        prompt: options[:prompt],
+        composition_plan: options[:composition_plan],
+        music_length_ms: options[:music_length_ms],
+        model_id: options[:model_id] || "music_v1"
+      }.compact
+
+      headers = default_headers
+      query = {}
+      query[:output_format] = options[:output_format] if options[:output_format]
+
+      response = @connection.post("#{endpoint}?#{URI.encode_www_form(query)}") do |req|
+        req.headers = headers
+        req.body = request_body.to_json
+      end
+
+      response.body # multipart/mixed with JSON + binary audio
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
+
+
+    # 4. Create a composition plan
+    # POST /v1/music/plan
+    def create_music_plan(options = {})
+      endpoint = "/v1/music/plan"
+      request_body = {
+        prompt: options[:prompt],
+        music_length_ms: options[:music_length_ms],
+        source_composition_plan: options[:source_composition_plan],
+        model_id: options[:model_id] || "music_v1"
+      }.compact
+
+      response = @connection.post(endpoint) do |req|
+        req.headers = default_headers
+        req.body = request_body.to_json
+      end
+
+      JSON.parse(response.body, symbolize_names: true)
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
+
     private
 
     # Common headers needed by Elevenlabs

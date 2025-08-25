@@ -14,6 +14,7 @@ This gem provides an easy-to-use interface for:
 - **Converting text to speech** and retrieving the generated audio
 - **Designing a voice** based on a text description
 - **Streaming text-to-speech audio**
+- **Music Generation**
 
 All requests are handled via [Faraday](https://github.com/lostisland/faraday).
 
@@ -304,12 +305,39 @@ Designed voices cannot be used for TTS until they are created in your account.
 
 If the voice is not immediately available for TTS, wait a few seconds or check its status via client.get_voice(voice_id) until it’s "active".
 
-10. Create a multi-speaker dialogue
+11. Create a multi-speaker dialogue
 ```ruby
 inputs = [{text: "It smells like updog in here", voice_id: "TX3LPaxmHKxFdv7VOQHJ"}, {text: "What's updog?", voice_id: "RILOU7YmBhvwJGDGjNmP"}, {text: "Not much, you?", voice_id: "TX3LPaxmHKxFdv7VOQHJ"}]
 
 audio_data = client.text_to_dialogue(inputs)
 File.open("what's updog.mp3", "wb") { |f| f.write(audio_data) }
+```
+
+12. **Generate Music from prompt**
+```ruby
+audio = client.compose_music(prompt: "Lo-fi hip hop beat", music_length_ms: 30000)
+File.binwrite("lofi.mp3", audio)
+```
+
+12. **Stream Music Generated from prompt**
+```ruby
+File.open("epic_stream.mp3", "wb") do |f|
+  client.compose_music_stream(prompt: "Epic orchestral build", music_length_ms: 60000) do |chunk|
+    f.write(chunk)
+  end
+end
+```
+
+13. **Generate Music with Detailed Metadata (metadata + audio) from prompt**
+```ruby
+result = client.compose_music_detailed(prompt: "Jazz piano trio", music_length_ms: 20000)
+puts result # raw multipart data (needs parsing)
+```
+
+14. **Create a music composition plan from prompt**
+```ruby
+plan = client.create_music_plan(prompt: "Upbeat pop song with verse and chorus", music_length_ms: 60000)
+puts plan[:sections]
 ```
 
 ---
@@ -368,7 +396,7 @@ gem build elevenlabs.gemspec
 Install the gem locally:
 
 ```bash
-gem install ./elevenlabs-0.0.6.gem
+gem install ./elevenlabs-0.0.7.gem
 ```
 
 ---
