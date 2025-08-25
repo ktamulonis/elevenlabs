@@ -5,7 +5,7 @@ require_relative "elevenlabs/client"
 require_relative "elevenlabs/errors"
 
 module Elevenlabs
-  VERSION = "0.0.6"
+  VERSION = "0.0.7"
 
   # Optional global configuration
   class << self
