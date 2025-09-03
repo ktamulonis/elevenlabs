@@ -15,6 +15,7 @@ This gem provides an easy-to-use interface for:
 - **Designing a voice** based on a text description
 - **Streaming text-to-speech audio**
 - **Music Generation**
+- **Sound Effect Generation**
 
 All requests are handled via [Faraday](https://github.com/lostisland/faraday).
 
@@ -339,6 +340,51 @@ puts result # raw multipart data (needs parsing)
 plan = client.create_music_plan(prompt: "Upbeat pop song with verse and chorus", music_length_ms: 60000)
 puts plan[:sections]
 ```
+
+15. **Create sound effects from a prompt**
+
+Basic Usage: Simple Prompt
+  Generate a sound effect with only a text prompt, using default settings (output_format: "mp3_44100_128", duration_seconds: nil (auto-detected), prompt_influence: 0.3).
+
+```ruby
+audio_data = client.sound_generation("Futuristic laser blast in a space battle")
+
+# Save the audio to a file
+File.open("laser_blast.mp3", "wb") { |f| f.write(audio_data) }
+```
+
+Advanced Usage: Custom Duration, Influence, and Format
+Specify duration_seconds, prompt_influence, and output_format for precise control over the sound effect.
+# Generate a roaring dragon sound with specific settings
+```ruby
+audio_data = client.sound_generation(
+  "Roaring dragon in a fantasy cave",
+  duration_seconds: 3.0,
+  prompt_influence: 0.7, # Higher influence for closer adherence to the prompt
+  output_format: "mp3_22050_32"
+)
+
+# Save the audio to a file
+File.open("dragon_roar.mp3", "wb") { |f| f.write(audio_data) }
+```
+
+
+Looping Sound Effect
+Create a looping sound effect for continuous playback, such as background ambiance in a video game.
+# Generate a looping ambient sound for a haunted forest
+```ruby
+audio_data = client.sound_generation(
+  "Eerie wind and distant owl hoots in a haunted forest",
+  loop: true,
+  duration_seconds: 10.0,
+  prompt_influence: 0.5,
+  output_format: "mp3_22050_32"
+)
+# Save the audio to a file
+File.open("haunted_forest_loop.mp3", "wb") { |f| f.write(audio_data) }
+```
+
+For more details, see the ElevenLabs Sound Generation API documentation.
 
 ---
 
