@@ -442,7 +442,7 @@ gem build elevenlabs.gemspec
 Install the gem locally:
 
 ```bash
-gem install ./elevenlabs-0.0.7.gem
+gem install ./elevenlabs-0.0.8.gem
 ```
 
 ---
