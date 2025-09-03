@@ -9,13 +9,15 @@ module Elevenlabs
     BASE_URL = "https://api.elevenlabs.io"
 
     # Note the default param: `api_key: nil`
-    def initialize(api_key: nil)
+    def initialize(api_key: nil, open_timeout: 5, read_timeout: 120)
       # If the caller doesn’t provide an api_key, use the gem-wide config
       @api_key = api_key || Elevenlabs.configuration&.api_key
 
       @connection = Faraday.new(url: BASE_URL) do |conn|
         conn.request :url_encoded
         conn.response :raise_error
+        conn.options.open_timeout = open_timeout   # time to open connection
+        conn.options.timeout      = read_timeout   # time to wait for response
         conn.adapter Faraday.default_adapter
       end
     end
@@ -119,6 +121,48 @@ module Elevenlabs
       headers["Accept"] = "audio/mpeg"
 
       response = @connection.post(endpoint) do |req|
+        req.headers = headers
+        req.body = request_body.to_json
+      end
+
+      # Returns raw binary data (often MP3)
+      response.body
+    rescue Faraday::ClientError => e
+      handle_error(e)
+    end
+
+    #####################################################
+    #                 Sound Generation                  #
+    #      (POST /v1/sound-generation)                  #
+    #####################################################
+
+    # Convert text to sound effects and retrieve audio (binary data)
+    # Documentation: https://elevenlabs.io/docs/api-reference/sound-generation
+    #
+    # @param [String] text - text prompt describing the sound effect
+    # @param [Hash] options - optional parameters
+    #   :loop              => Boolean  (whether to create a looping sound effect, default: false)
+    #   :duration_seconds  => Float    (0.5 to 30 seconds, default: nil for auto-detection)
+    #   :prompt_influence  => Float    (0.0 to 1.0, default: 0.3)
+    #   :output_format     => String   (e.g., "mp3_22050_32", default: "mp3_44100_128")
+    #
+    # @return [String] The binary audio data (usually an MP3).
+    def sound_generation(text, options = {})
+      endpoint = "/v1/sound-generation"
+      request_body = { text: text }
+
+      # Add optional parameters if provided
+      request_body[:loop] = options[:loop] unless options[:loop].nil?
+      request_body[:duration_seconds] = options[:duration_seconds] if options[:duration_seconds]
+      request_body[:prompt_influence] = options[:prompt_influence] if options[:prompt_influence]
+
+      headers = default_headers
+      headers["Accept"] = "audio/mpeg"
+
+      query = {}
+      query[:output_format] = options[:output_format] if options[:output_format]
+
+      response = @connection.post("#{endpoint}?#{URI.encode_www_form(query)}") do |req|
         req.headers = headers
         req.body = request_body.to_json
       end

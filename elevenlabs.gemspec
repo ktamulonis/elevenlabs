@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = "elevenlabs"
-  spec.version       = "0.0.7"
+  spec.version       = "0.0.8"
   spec.authors       = ["hackliteracy"]
   spec.email         = ["hackliteracy@gmail.com"]
   spec.summary       = %q{A Ruby client for the ElevenLabs Text-to-Speech API}
